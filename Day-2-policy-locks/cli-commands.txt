@@ -1,0 +1,30 @@
+
+az group create --name Day2-LabRG --location eastus
+# Create a resource group
+
+az policy definition list --query "[?contains(displayName, 'Require a tag')]" --output table
+# List built-in policies that require tags
+
+az policy definition show --name <policy-id> --output json
+# Show details of a specific policy by ID
+
+az policy assignment create --name RequireTagAssignment --scope /subscriptions/<subscription-id>/resourceGroups/Day2-LabRG --policy <policy-id> --params '{"tagName":{"value":"Environment"}}'
+# Assign the tag-required policy to the resource group
+
+az storage account create --name mystorageacc123 --resource-group Day2-LabRG --location eastus --sku Standard_LRS
+# Attempt to create storage account without tag (should fail)
+
+az storage account create --name mystorageacc7865 --resource-group Day2-LabRG --location eastus --sku Standard_LRS --tags Environment=Production
+# Create storage account with required tag (should succeed)
+
+az lock create --name LockTest --lock-type CanNotDelete --resource-group Day2-LabRG
+# Create a lock on the resource group to prevent deletion
+
+az group delete --name Day2-LabRG --yes --no-wait
+# Try deleting the resource group (should fail due to lock)
+
+az lock delete --name LockTest --resource-group Day2-LabRG
+# Delete the lock to allow resource group deletion
+
+az group delete --name Day2-LabRG --yes --no-wait
+# Delete the resource group and all resources
